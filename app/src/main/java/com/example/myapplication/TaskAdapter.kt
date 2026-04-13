@@ -45,6 +45,7 @@ class TaskAdapter(
             binding.TaskTitle.text = task.title
             binding.TaskDescription.text = task.description
             binding.TaskDueDate.text = "Due ${task.dueDate}"
+            binding.TaskPriority.text = "Priority: ${task.priority}"
         }
     }
 }

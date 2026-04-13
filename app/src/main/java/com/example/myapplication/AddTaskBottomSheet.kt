@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.app.DatePickerDialog
 import android.widget.EditText
+import android.widget.PopupMenu
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -20,6 +21,22 @@ class AddTaskBottomSheet(private val onTaskAdded: (Task) -> Unit) : BottomSheetD
         val newTaskTitle = view.findViewById<EditText>(R.id.bsdTaskTitle)
         val newTaskDescription = view.findViewById<EditText>(R.id.bsdTaskDescription)
         val newTaskDueDate = view.findViewById<TextView>(R.id.bsdTaskDueDate)
+        val newPriority = view.findViewById<TextView>(R.id.bsdPrioritySelection)
+
+        var defaultPriority = "Medium"
+
+        newPriority.setOnClickListener {
+            val popup = PopupMenu(requireContext(), newPriority)
+            popup.menu.add("Low")
+            popup.menu.add("Medium")
+            popup.menu.add("High")
+            popup.setOnMenuItemClickListener { item ->
+                defaultPriority = item.title.toString()
+                newPriority.text = "Priority: $defaultPriority"
+                true
+            }
+            popup.show()
+        }
 
         newTaskDueDate.setOnClickListener {
             val calendar = Calendar.getInstance()
@@ -37,7 +54,7 @@ class AddTaskBottomSheet(private val onTaskAdded: (Task) -> Unit) : BottomSheetD
             val title = newTaskTitle.text.toString().trim()
             if (title.isNotEmpty()) {
                 onTaskAdded(Task(
-                    title = title, description = newTaskDescription.text.toString().trim(), dueDate = newTaskDueDate.text.toString().trim()))
+                    title = title, description = newTaskDescription.text.toString().trim(), dueDate = newTaskDueDate.text.toString().trim(), priority = defaultPriority))
                 dismiss()
             } else {
                 newTaskTitle.error = "Title is required to add a new task. Please enter a title and try again."
