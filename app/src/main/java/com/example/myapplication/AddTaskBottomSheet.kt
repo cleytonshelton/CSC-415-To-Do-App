@@ -36,7 +36,8 @@ class AddTaskBottomSheet(private val onTaskAdded: (Task) -> Unit) : BottomSheetD
         view.findViewById<Button>(R.id.AddButton).setOnClickListener {
             val title = newTaskTitle.text.toString().trim()
             if (title.isNotEmpty()) {
-                onTaskAdded(Task(title, newTaskDescription.text.toString().trim(), newTaskDueDate.text.toString().trim()))
+                onTaskAdded(Task(
+                    title = title, description = newTaskDescription.text.toString().trim(), dueDate = newTaskDueDate.text.toString().trim()))
                 dismiss()
             } else {
                 newTaskTitle.error = "Title is required to add a new task. Please enter a title and try again."

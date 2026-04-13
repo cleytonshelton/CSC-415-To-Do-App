@@ -1,28 +1,22 @@
 package com.example.myapplication
 
-import com.example.myapplication.data.Task
 import android.os.Bundle
-import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-
+import androidx.fragment.app.commit
+import com.example.myapplication.databinding.ActivityMainBinding
+import com.example.myapplication.TaskListFragment
 class MainActivity : AppCompatActivity() {
 
-    private val tasks = mutableListOf<Task>()
-    private lateinit var adapter: TaskAdapter
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        adapter = TaskAdapter(this, tasks)
-        findViewById<ListView>(R.id.taskRecyclerView).adapter = adapter
-
-        findViewById<FloatingActionButton>(R.id.fabAddTask).setOnClickListener {
-            AddTaskBottomSheet { task ->
-                tasks.add(task)
-                adapter.notifyDataSetChanged()
-            }.show(supportFragmentManager, "AddTaskBottomSheet")
+        supportFragmentManager.commit {
+            add(R.id.fragment_container, TaskListFragment())
+            setReorderingAllowed(true)
         }
     }
 }
