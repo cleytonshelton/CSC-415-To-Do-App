@@ -22,7 +22,10 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private val taskDao by lazy {
         TaskDatabase.getDatabase(requireContext()).taskDao()
     }
-    val taskAdapter = TaskAdapter { }
+    val taskAdapter = TaskAdapter(
+        onEditTaskClicked = { task -> editTask(task)},
+        onDeleteTaskClicked = { task -> deleteTask(task)}
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,5 +63,19 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
                 taskDao.insertTask(task)
             }
         }.show(parentFragmentManager, "AddTaskBottomSheet")
+    }
+
+    private fun editTask(task: Task) {
+        AddTaskBottomSheet(existingTask = task) { updatedTask ->
+            lifecycleScope.launch {
+                taskDao.updateTask(updatedTask)
+            }
+        }.show(parentFragmentManager, "EditTaskBottomSheet")
+    }
+
+    private fun deleteTask(task: Task) {
+        lifecycleScope.launch {
+            taskDao.deleteTask(task)
+        }
     }
 }

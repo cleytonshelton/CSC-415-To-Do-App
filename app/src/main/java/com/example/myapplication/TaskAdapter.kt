@@ -8,16 +8,15 @@ import com.example.myapplication.data.Task
 import com.example.myapplication.databinding.ItemTaskBinding
 
 class TaskAdapter(
-    private val onTaskClicked: (task: Task) -> Unit
+    private val onEditTaskClicked: (task: Task) -> Unit,
+    private val onDeleteTaskClicked: (task: Task) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     private val tasks = mutableListOf<Task>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val binding = ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return TaskViewHolder(binding) { position ->
-            onTaskClicked(tasks[position])
-        }
+        return TaskViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) = holder.bind(tasks[position])
@@ -31,21 +30,18 @@ class TaskAdapter(
         notifyDataSetChanged()
     }
 
-    class TaskViewHolder(
+    inner class TaskViewHolder(
         private val binding: ItemTaskBinding,
-        private val onTaskClicked: (position: Int) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
-        init {
-            itemView.setOnClickListener {
-                onTaskClicked(adapterPosition)
-            }
-        }
 
         fun bind(task: Task) {
             binding.TaskTitle.text = task.title
             binding.TaskDescription.text = task.description
             binding.TaskDueDate.text = "Due ${task.dueDate}"
             binding.TaskPriority.text = "Priority: ${task.priority}"
+
+            binding.EditTaskButton.setOnClickListener { onEditTaskClicked(task) }
+            binding.DeleteTaskButton.setOnClickListener { onDeleteTaskClicked(task) }
         }
     }
 }

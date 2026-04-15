@@ -13,7 +13,11 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class AddTaskBottomSheet(private val onTaskAdded: (Task) -> Unit) : BottomSheetDialogFragment() {
+class AddTaskBottomSheet(
+    private val existingTask: Task? = null,
+    private val onTaskAdded: (Task) -> Unit
+) : BottomSheetDialogFragment() {
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         inflater.inflate(R.layout.bottom_sheet_dialog, container, false)
 
@@ -22,8 +26,17 @@ class AddTaskBottomSheet(private val onTaskAdded: (Task) -> Unit) : BottomSheetD
         val newTaskDescription = view.findViewById<EditText>(R.id.bsdTaskDescription)
         val newTaskDueDate = view.findViewById<TextView>(R.id.bsdTaskDueDate)
         val newPriority = view.findViewById<TextView>(R.id.bsdPrioritySelection)
-
+        val addTaskButton = view.findViewById<Button>(R.id.AddButton)
         var defaultPriority = "Medium"
+
+        existingTask?.let {
+            newTaskTitle.setText(it.title)
+            newTaskDescription.setText(it.description)
+            newTaskDueDate.text = it.dueDate
+            newPriority.text = it.priority
+            defaultPriority = it.priority
+            addTaskButton.text = "Save New Changes"
+        }
 
         newPriority.setOnClickListener {
             val popup = PopupMenu(requireContext(), newPriority)
@@ -50,11 +63,11 @@ class AddTaskBottomSheet(private val onTaskAdded: (Task) -> Unit) : BottomSheetD
                 calendar.get(Calendar.DAY_OF_MONTH)
             ).show()
         }
-        view.findViewById<Button>(R.id.AddButton).setOnClickListener {
+        addTaskButton.setOnClickListener {
             val title = newTaskTitle.text.toString().trim()
             if (title.isNotEmpty()) {
                 onTaskAdded(Task(
-                    title = title, description = newTaskDescription.text.toString().trim(), dueDate = newTaskDueDate.text.toString().trim(), priority = defaultPriority))
+                    id = existingTask?.id ?: 0,title = title, description = newTaskDescription.text.toString().trim(), dueDate = newTaskDueDate.text.toString().trim(), priority = defaultPriority))
                 dismiss()
             } else {
                 newTaskTitle.error = "Title is required to add a new task. Please enter a title and try again."
