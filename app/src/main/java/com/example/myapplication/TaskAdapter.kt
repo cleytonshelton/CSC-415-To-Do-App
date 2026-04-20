@@ -39,6 +39,7 @@ class TaskAdapter(
             binding.TaskDescription.text = task.description
             binding.TaskDueDate.text = "Due ${task.dueDate}"
             binding.TaskPriority.text = "Priority: ${task.priority}"
+            binding.TaskTags.text = if (task.tags.isBlank()) "" else "Tags: ${task.tags}"
 
             binding.EditTaskButton.setOnClickListener { onEditTaskClicked(task) }
             binding.DeleteTaskButton.setOnClickListener { onDeleteTaskClicked(task) }

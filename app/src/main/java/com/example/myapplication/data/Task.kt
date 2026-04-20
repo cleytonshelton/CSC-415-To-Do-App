@@ -11,4 +11,7 @@ data class Task(
     val description: String,
     val dueDate: String,
     val priority: String = "Medium",
+    val inProgress: Boolean = false,
+    val isCompleted: Boolean = false,
+    val tags: String = ""
 )

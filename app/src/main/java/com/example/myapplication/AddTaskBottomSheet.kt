@@ -28,6 +28,7 @@ class AddTaskBottomSheet(
         val newPriority = view.findViewById<TextView>(R.id.bsdPrioritySelection)
         val addTaskButton = view.findViewById<Button>(R.id.AddButton)
         var defaultPriority = "Medium"
+        val newTags = view.findViewById<EditText>(R.id.bsdTagInput)
 
         existingTask?.let {
             newTaskTitle.setText(it.title)
@@ -35,6 +36,7 @@ class AddTaskBottomSheet(
             newTaskDueDate.text = it.dueDate
             newPriority.text = it.priority
             defaultPriority = it.priority
+            newTags.setText(it.tags)
             addTaskButton.text = "Save New Changes"
         }
 
@@ -67,7 +69,7 @@ class AddTaskBottomSheet(
             val title = newTaskTitle.text.toString().trim()
             if (title.isNotEmpty()) {
                 onTaskAdded(Task(
-                    id = existingTask?.id ?: 0,title = title, description = newTaskDescription.text.toString().trim(), dueDate = newTaskDueDate.text.toString().trim(), priority = defaultPriority))
+                    id = existingTask?.id ?: 0,title = title, description = newTaskDescription.text.toString().trim(), dueDate = newTaskDueDate.text.toString().trim(), priority = defaultPriority, tags = newTags.text.toString().trim()))
                 dismiss()
             } else {
                 newTaskTitle.error = "Title is required to add a new task. Please enter a title and try again."

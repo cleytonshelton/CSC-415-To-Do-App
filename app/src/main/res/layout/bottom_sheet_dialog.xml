@@ -50,13 +50,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bsdTaskDueDate"/>
 
+        <EditText
+            android:id="@+id/bsdTagInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Tags (separate by commas)"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bsdPrioritySelection"/>
+
         <Button
             android:id="@+id/AddButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Add Task"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bsdPrioritySelection"/>
+            app:layout_constraintTop_toBottomOf="@+id/bsdTagInput"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>
