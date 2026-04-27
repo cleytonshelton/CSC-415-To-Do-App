@@ -8,6 +8,7 @@ import com.example.myapplication.data.Task
 import com.example.myapplication.databinding.ItemTaskBinding
 
 class TaskAdapter(
+    private val onTaskClicked: (task: Task) -> Unit,
     private val onEditTaskClicked: (task: Task) -> Unit,
     private val onDeleteTaskClicked: (task: Task) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
@@ -35,11 +36,10 @@ class TaskAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(task: Task) {
+            binding.root.setOnClickListener { onTaskClicked(task) }
             binding.TaskTitle.text = task.title
-            binding.TaskDescription.text = task.description
             binding.TaskDueDate.text = "Due ${task.dueDate}"
             binding.TaskPriority.text = "Priority: ${task.priority}"
-            binding.TaskTags.text = if (task.tags.isBlank()) "" else "Tags: ${task.tags}"
 
             binding.EditTaskButton.setOnClickListener { onEditTaskClicked(task) }
             binding.DeleteTaskButton.setOnClickListener { onDeleteTaskClicked(task) }

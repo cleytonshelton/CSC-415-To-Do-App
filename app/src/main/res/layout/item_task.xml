@@ -22,12 +22,6 @@
             android:textStyle="bold"/>
 
         <TextView
-            android:id="@+id/TaskDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"/>
-
-        <TextView
             android:id="@+id/TaskDueDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,12 +29,6 @@
 
         <TextView
             android:id="@+id/TaskPriority"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"/>
-
-        <TextView
-            android:id="@+id/TaskTags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"/>
