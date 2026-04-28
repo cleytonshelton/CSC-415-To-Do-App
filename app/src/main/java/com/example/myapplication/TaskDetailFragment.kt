@@ -63,6 +63,25 @@ class TaskDetailFragment : Fragment() {
         binding.tvDetailDueDate.text = "Due Date: ${task.dueDate}"
         binding.tvDetailTags.text = "Tags: ${task.tags.ifBlank { "None" }}"
         binding.tvDetailDescription.text = "Description: ${task.description.ifBlank { "" }}"
+
+        binding.checkboxCompleted.isChecked = task.isCompleted
+        binding.checkboxInProgress.isChecked = task.inProgress
+
+        binding.checkboxCompleted.setOnCheckedChangeListener { _,  checked ->
+            lifecycleScope.launch {
+                taskDao.updateTask(task.copy(isCompleted = checked, inProgress = false))
+                if (checked) binding.checkboxInProgress.isChecked = false
+                taskDao.getTaskById(task.id)?.let { bindTask(it) }
+            }
+        }
+
+        binding.checkboxInProgress.setOnCheckedChangeListener { _, checked ->
+            lifecycleScope.launch {
+                taskDao.updateTask(task.copy(inProgress = checked, isCompleted = false))
+                if (checked) binding.checkboxCompleted.isChecked = false
+                taskDao.getTaskById(task.id)?.let { bindTask(it) }
+            }
+        }
     }
 
     companion object {

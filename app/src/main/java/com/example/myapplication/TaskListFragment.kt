@@ -19,6 +19,7 @@ import com.prolificinteractive.materialcalendarview.CalendarDay
 import com.prolificinteractive.materialcalendarview.DayViewDecorator
 import com.prolificinteractive.materialcalendarview.DayViewFacade
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
+import java.util.Calendar
 
 
 class TaskListFragment : Fragment(R.layout.fragment_task_list) {
@@ -85,11 +86,15 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         val highPriorityDates = hashSetOf<CalendarDay>()
         val mediumPriorityDates = hashSetOf<CalendarDay>()
         val lowPriorityDates = hashSetOf<CalendarDay>()
-
+        val completedDay = hashSetOf<CalendarDay>()
         val groupedByDate = tasks.groupBy { it.dueDate }
 
         groupedByDate.forEach { (dateStr, tasksOnDate) ->
             val calendarDay = parseDate(dateStr) ?: return@forEach
+
+            if (tasksOnDate.isNotEmpty() && tasksOnDate.all { it.isCompleted }) {
+                completedDay.add(calendarDay)
+            }
 
             val topPriority = tasksOnDate.maxByOrNull {
                 when(it.priority) {
@@ -104,20 +109,14 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
                 "Medium" -> mediumPriorityDates.add(calendarDay)
                 "Low" -> lowPriorityDates.add(calendarDay)
             }
-
-            binding.calendarView.removeDecorators()
-            binding.calendarView.addDecorators(
-                PriorityDecorator(Color.RED, highPriorityDates),    // High = Red
-                PriorityDecorator(Color.YELLOW, mediumPriorityDates), // Medium = Yellow
-                PriorityDecorator(Color.GREEN, lowPriorityDates)      // Low = Green
-            )
         }
 
         binding.calendarView.removeDecorators()
         binding.calendarView.addDecorators(
-            PriorityDecorator(Color.RED, highPriorityDates),
-            PriorityDecorator(Color.YELLOW, mediumPriorityDates),
-            PriorityDecorator(Color.GREEN, lowPriorityDates)
+            PriorityDecorator(Color.RED, highPriorityDates),  // High = Red
+            PriorityDecorator(Color.YELLOW, mediumPriorityDates),  // Medium = Yellow
+            PriorityDecorator(Color.BLUE, lowPriorityDates),  // Low = Blue
+            PriorityDecorator(Color.GREEN, completedDay)  // All tasks completed for the day = Green
         )
     }
 
