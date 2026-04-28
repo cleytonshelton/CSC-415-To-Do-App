@@ -59,10 +59,7 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        android.util.Log.d("DEBUG", "savedInstanceState = $savedInstanceState")
-        android.util.Log.d("DEBUG", "selectedDate field = $selectedDate")
-
+        
         binding.taskRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = taskAdapter
@@ -116,8 +113,6 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
                 taskDao.getAllTasks().collect { tasks ->
-                    android.util.Log.d("DEBUG", "observer fired, selectedDate = $selectedDate")
-                    android.util.Log.d("DEBUG", "observer fired, calendar.selectedDate = ${binding.calendarView.selectedDate}")
                     _binding?.let { currentBinding ->
                         allTasks = tasks
 
