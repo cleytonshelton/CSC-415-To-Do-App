@@ -20,7 +20,9 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator
 import com.prolificinteractive.materialcalendarview.DayViewFacade
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
 import java.util.Calendar
-
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 
 class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private var _binding: FragmentTaskListBinding? = null
@@ -28,6 +30,8 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         get() = _binding!!
 
     private var allTasks: List<Task> = emptyList()
+
+    private var selectedDate: CalendarDay? = null
 
     private val taskDao by lazy {
         TaskDatabase.getDatabase(requireContext()).taskDao()
@@ -61,27 +65,56 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             adapter = taskAdapter
         }
 
+        if (savedInstanceState != null) {
+            @Suppress("DEPRECATION")
+            val savedDate = savedInstanceState.getSerializable("selected_date") as? CalendarDay
+
+            savedDate?.let {
+                selectedDate = it
+                binding.calendarView.setSelectedDate(it)
+                filterTasksByDate(it)
+            }
+        } else {
+            val today = CalendarDay.today()
+            selectedDate = today
+            binding.calendarView.setSelectedDate(today)
+            filterTasksByDate(today)
+        }
+
         binding.calendarView.setOnDateChangedListener { _, date, _ ->
+            selectedDate = date
             filterTasksByDate(date)
         }
 
         binding.fabAddTask.setOnClickListener {
             addTask()
         }
+
         setUpObservers()
     }
 
-    private fun setUpObservers() {
-        lifecycleScope.launch {
-            taskDao.getAllTasks().collect { tasks ->
-                allTasks = tasks
-                updateCalendarDecorators(tasks)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable("selected_date", selectedDate as java.io.Serializable?)
+    }
 
-                val currentSelectedDate = binding.calendarView.selectedDate ?: CalendarDay.today()
-                filterTasksByDate(currentSelectedDate)
+    private fun setUpObservers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                taskDao.getAllTasks().collect { tasks ->
+                    _binding?.let { currentBinding ->
+                        allTasks = tasks
+
+                        updateCalendarDecorators(tasks)
+
+                        val currentSelectedDate = currentBinding.calendarView.selectedDate ?: CalendarDay.today()
+                        filterTasksByDate(currentSelectedDate)
+                    }
+                }
             }
         }
     }
+
     private fun updateCalendarDecorators(tasks: List<Task>) {
         val highPriorityDates = hashSetOf<CalendarDay>()
         val mediumPriorityDates = hashSetOf<CalendarDay>()
@@ -118,6 +151,7 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             PriorityDecorator(Color.BLUE, lowPriorityDates),  // Low = Blue
             PriorityDecorator(Color.GREEN, completedDay)  // All tasks completed for the day = Green
         )
+        binding.calendarView.invalidateDecorators()
     }
 
     private fun filterTasksByDate(date: CalendarDay) {
@@ -172,6 +206,11 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         lifecycleScope.launch {
             taskDao.deleteTask(task)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
 

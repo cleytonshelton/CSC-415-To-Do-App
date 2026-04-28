@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardElevation="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/bsdTaskTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <EditText
+            android:id="@+id/bsdTaskDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bsdTaskTitle"/>
+
+        <TextView
+            android:id="@+id/bsdTaskDueDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Select a Due Date"
+            style="@style/Widget.AppCompat.EditText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bsdTaskDescription" />
+
+        <TextView
+            android:id="@+id/bsdPrioritySelection"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Priority: Medium"
+            style="@style/Widget.AppCompat.EditText"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bsdTaskDueDate"/>
+
+        <EditText
+            android:id="@+id/bsdTagInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Tags (separate by commas)"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bsdPrioritySelection"/>
+
+        <Button
+            android:id="@+id/AddButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Add Task"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bsdTagInput"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
