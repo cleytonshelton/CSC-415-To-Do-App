@@ -14,11 +14,19 @@ import com.example.myapplication.data.Task
 import com.example.myapplication.data.TaskDatabase
 import com.example.myapplication.databinding.FragmentTaskListBinding
 import kotlinx.coroutines.launch
+import android.graphics.Color
+import com.prolificinteractive.materialcalendarview.CalendarDay
+import com.prolificinteractive.materialcalendarview.DayViewDecorator
+import com.prolificinteractive.materialcalendarview.DayViewFacade
+import com.prolificinteractive.materialcalendarview.spans.DotSpan
+
 
 class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private var _binding: FragmentTaskListBinding? = null
     private val binding
         get() = _binding!!
+
+    private var allTasks: List<Task> = emptyList()
 
     private val taskDao by lazy {
         TaskDatabase.getDatabase(requireContext()).taskDao()
@@ -52,6 +60,10 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
             adapter = taskAdapter
         }
 
+        binding.calendarView.setOnDateChangedListener { _, date, _ ->
+            filterTasksByDate(date)
+        }
+
         binding.fabAddTask.setOnClickListener {
             addTask()
         }
@@ -61,8 +73,84 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     private fun setUpObservers() {
         lifecycleScope.launch {
             taskDao.getAllTasks().collect { tasks ->
-                taskAdapter.refreshData(tasks)
+                allTasks = tasks
+                updateCalendarDecorators(tasks)
+
+                val currentSelectedDate = binding.calendarView.selectedDate ?: CalendarDay.today()
+                filterTasksByDate(currentSelectedDate)
             }
+        }
+    }
+    private fun updateCalendarDecorators(tasks: List<Task>) {
+        val highPriorityDates = hashSetOf<CalendarDay>()
+        val mediumPriorityDates = hashSetOf<CalendarDay>()
+        val lowPriorityDates = hashSetOf<CalendarDay>()
+
+        val groupedByDate = tasks.groupBy { it.dueDate }
+
+        groupedByDate.forEach { (dateStr, tasksOnDate) ->
+            val calendarDay = parseDate(dateStr) ?: return@forEach
+
+            val topPriority = tasksOnDate.maxByOrNull {
+                when(it.priority) {
+                    "High" -> 3
+                    "Medium" -> 2
+                    else -> 1
+                }
+            }?.priority
+
+            when(topPriority) {
+                "High" -> highPriorityDates.add(calendarDay)
+                "Medium" -> mediumPriorityDates.add(calendarDay)
+                "Low" -> lowPriorityDates.add(calendarDay)
+            }
+
+            binding.calendarView.removeDecorators()
+            binding.calendarView.addDecorators(
+                PriorityDecorator(Color.RED, highPriorityDates),    // High = Red
+                PriorityDecorator(Color.YELLOW, mediumPriorityDates), // Medium = Yellow
+                PriorityDecorator(Color.GREEN, lowPriorityDates)      // Low = Green
+            )
+        }
+
+        binding.calendarView.removeDecorators()
+        binding.calendarView.addDecorators(
+            PriorityDecorator(Color.RED, highPriorityDates),
+            PriorityDecorator(Color.YELLOW, mediumPriorityDates),
+            PriorityDecorator(Color.GREEN, lowPriorityDates)
+        )
+    }
+
+    private fun filterTasksByDate(date: CalendarDay) {
+        val selectedDateStr = "${date.month}/${date.day}/${date.year}"
+
+        //android.util.Log.d("CALENDAR_DEBUG", "now searching for: '$selectedDateStr'")
+
+        val filteredAndSorted = allTasks
+            .filter { it.dueDate == selectedDateStr }
+            .sortedBy { task ->
+                when (task.priority) {
+                    "High" -> 1
+                    "Medium" -> 2
+                    "Low" -> 3
+                    else -> 4
+                }
+            }
+
+        taskAdapter.refreshData(filteredAndSorted)
+    }
+
+    private fun parseDate(dateString: String): CalendarDay? {
+        return try {
+            val parts = dateString.split("/")
+            val month = parts[0].toInt()
+            val day = parts[1].toInt()
+            val year = parts[2].toInt()
+
+            CalendarDay.from(year, month, day)
+        } catch (e: Exception) {
+            //android.util.Log.e("DECORATOR_DEBUG", "Failed to parse date: $dateString")
+            null
         }
     }
     private fun addTask() {
@@ -85,5 +173,12 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
         lifecycleScope.launch {
             taskDao.deleteTask(task)
         }
+    }
+}
+
+class PriorityDecorator(private val color: Int, private val dates: HashSet<CalendarDay>) : DayViewDecorator {
+    override fun shouldDecorate(day: CalendarDay): Boolean = dates.contains(day)
+    override fun decorate(view: DayViewFacade) {
+        view.addSpan(DotSpan(15f, color))
     }
 }
