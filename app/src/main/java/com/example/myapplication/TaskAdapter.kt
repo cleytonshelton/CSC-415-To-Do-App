@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.annotation.SuppressLint
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import com.example.myapplication.data.Task
 import com.example.myapplication.databinding.ItemTaskBinding
@@ -43,6 +44,10 @@ class TaskAdapter(
 
             binding.EditTaskButton.setOnClickListener { onEditTaskClicked(task) }
             binding.DeleteTaskButton.setOnClickListener { onDeleteTaskClicked(task) }
+
+            binding.tvCompletedCheck.visibility = if (task.isCompleted) View.VISIBLE else View.GONE
+            binding.tvInProgressCheck.visibility = if (task.inProgress) View.VISIBLE else View.GONE
+            binding.tvNotStarted.visibility = if (!task.inProgress && !task.isCompleted) View.VISIBLE else View.GONE
         }
     }
 }
