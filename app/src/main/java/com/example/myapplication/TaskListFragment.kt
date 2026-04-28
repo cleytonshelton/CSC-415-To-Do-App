@@ -60,20 +60,29 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        android.util.Log.d("DEBUG", "savedInstanceState = $savedInstanceState")
+        android.util.Log.d("DEBUG", "selectedDate field = $selectedDate")
+
         binding.taskRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = taskAdapter
         }
 
-        if (savedInstanceState != null) {
-            @Suppress("DEPRECATION")
-            val savedDate = savedInstanceState.getSerializable("selected_date") as? CalendarDay
+        binding.calendarView.clearSelection()
 
-            savedDate?.let {
-                selectedDate = it
-                binding.calendarView.setSelectedDate(it)
-                filterTasksByDate(it)
-            }
+        if (savedInstanceState != null &&
+            savedInstanceState.containsKey("saved_year")) {
+
+            val year = savedInstanceState.getInt("saved_year")
+            val month = savedInstanceState.getInt("saved_month")
+            val day = savedInstanceState.getInt("saved_day")
+
+            val restoredDate = CalendarDay.from(year, month, day)
+
+            selectedDate = restoredDate
+            binding.calendarView.setSelectedDate(restoredDate)
+            filterTasksByDate(restoredDate)
+
         } else {
             val today = CalendarDay.today()
             selectedDate = today
@@ -95,19 +104,26 @@ class TaskListFragment : Fragment(R.layout.fragment_task_list) {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putSerializable("selected_date", selectedDate as java.io.Serializable?)
+
+        selectedDate?.let {
+            outState.putInt("saved_year", it.year)
+            outState.putInt("saved_month", it.month)
+            outState.putInt("saved_day", it.day)
+        }
     }
 
     private fun setUpObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
                 taskDao.getAllTasks().collect { tasks ->
+                    android.util.Log.d("DEBUG", "observer fired, selectedDate = $selectedDate")
+                    android.util.Log.d("DEBUG", "observer fired, calendar.selectedDate = ${binding.calendarView.selectedDate}")
                     _binding?.let { currentBinding ->
                         allTasks = tasks
 
                         updateCalendarDecorators(tasks)
 
-                        val currentSelectedDate = currentBinding.calendarView.selectedDate ?: CalendarDay.today()
+                        val currentSelectedDate = selectedDate ?: CalendarDay.today()
                         filterTasksByDate(currentSelectedDate)
                     }
                 }

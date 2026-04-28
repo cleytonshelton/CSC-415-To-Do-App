@@ -11,7 +11,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/guideline_horizontal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:saveEnabled="false"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_horizontal"
